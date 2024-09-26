@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:snapsync/features/exports.dart';
+import 'package:snapsync/widgets/exports.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   static const routeName = '/';
@@ -67,8 +68,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
         ],
       ),
-      body: const Center(
-        child: Text('Home'),
+      body: const Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: 16.0,
+          vertical: 12.0,
+        ),
+        child: SnapSyncListView(),
       ),
       floatingActionButton: user == null
           ? null
