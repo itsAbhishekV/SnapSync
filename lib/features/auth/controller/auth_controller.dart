@@ -1,9 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:snapsync/features/exports.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-enum AuthState { idle, loading, success, error }
-
-final authControllerProvider = StateNotifierProvider<AuthController, AuthState>(
+final authControllerProvider = StateNotifierProvider<AuthController, bool>(
   (ref) {
     return AuthController(
       ref.watch(
@@ -13,34 +12,37 @@ final authControllerProvider = StateNotifierProvider<AuthController, AuthState>(
   },
 );
 
-class AuthController extends StateNotifier<AuthState> {
+class AuthController extends StateNotifier<bool> {
   final AuthRepository _authRepository;
 
-  AuthController(this._authRepository) : super(AuthState.idle);
+  AuthController(this._authRepository) : super(false);
 
   Future<void> signUp(
       {required String email,
       required String password,
       required String username}) async {
-    state = AuthState.loading;
+    state = true;
     try {
       await _authRepository.signUp(
           email: email, password: password, username: username);
-      state = AuthState.success;
+      state = false;
     } catch (e) {
-      state = AuthState.error;
+      state = false;
       throw Exception(e.toString());
     }
   }
 
   Future<void> loginWithPasscode(
       {required String email, required String passcode}) async {
-    state = AuthState.loading;
+    state = true;
     try {
       await _authRepository.loginWithPasscode(email: email, passcode: passcode);
-      state = AuthState.success;
+      state = false;
+    } on AuthException catch (e) {
+      state = false;
+      throw AuthException(e.message);
     } catch (e) {
-      state = AuthState.error;
+      state = true;
       throw Exception(e.toString());
     }
   }

@@ -6,6 +6,7 @@ import 'package:pinput/pinput.dart';
 import 'package:snapsync/core/exports.dart';
 import 'package:snapsync/features/exports.dart';
 import 'package:snapsync/widgets/exports.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:validation_pro/validate.dart';
 
 GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -36,7 +37,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   bool _allowSubmit() {
     if (_emailController.text.isNotEmpty &&
-        _usernameController.text.isNotEmpty &&
         _passwordController.text.isNotEmpty) {
       return Validate.isEmail(_emailController.text);
     }
@@ -44,7 +44,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _createAccount() async {
-    if (_allowSubmit()) {
+    if (_allowSubmit() && _usernameController.text.isNotEmpty) {
       try {
         ref.read(authControllerProvider.notifier).signUp(
               email: _emailController.text,
@@ -53,6 +53,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             );
 
         if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Account Created'),
+              duration: Duration(seconds: 2),
+            ),
+          );
           context.go(HomeScreen.routePath);
         }
       } catch (e) {
@@ -75,9 +81,49 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
+  Future<void> _loginWithPasscode() async {
+    if (_allowSubmit()) {
+      try {
+        await ref.read(authControllerProvider.notifier).loginWithPasscode(
+              email: _emailController.text,
+              passcode: _passwordController.text,
+            );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Login Successful'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+          context.go(HomeScreen.routePath);
+        }
+      } on AuthException catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(e.message),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      } catch (e) {
+        throw Exception(e.toString());
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter valid email and password'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authControllerProvider);
+    final isLoading = ref.watch(authControllerProvider);
+    bool submitClicked = false;
+    bool createClicked = false;
 
     return Scaffold(
       appBar: AppBar(
@@ -91,6 +137,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
         child: Form(
+          key: _formKey,
           autovalidateMode: _autovalidateMode,
           child: Column(
             children: [
@@ -99,7 +146,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 label: 'Email Address and Passcode',
                 hintText: 'Enter your email',
                 keyboardType: TextInputType.emailAddress,
-                isReadOnly: authState == AuthState.loading,
+                isReadOnly: isLoading,
                 // Disable input when loading
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -112,7 +159,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               Pinput(
                 length: 6,
                 obscureText: true,
-                obscuringCharacter: '*',
                 controller: _passwordController,
                 onChanged: (String val) {},
                 defaultPinTheme: defaultPinPutTheme,
@@ -125,29 +171,46 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 child: FilledButton(
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
-                        vertical: 10.0, horizontal: 12.0),
+                      vertical: 10.0,
+                      horizontal: 12.0,
+                    ),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(36.0)),
+                      borderRadius: BorderRadius.circular(
+                        36.0,
+                      ),
+                    ),
                     backgroundColor: Colors.deepPurple,
                   ),
-                  onPressed: (authState == AuthState.loading)
+                  onPressed: (isLoading)
                       ? null
                       : () {
+                          setState(() {
+                            submitClicked = true;
+                          });
                           if (_formKey.currentState!.validate()) {
-                            // TODO - login user
+                            _loginWithPasscode();
                           } else {
                             setState(() {
                               _autovalidateMode = AutovalidateMode.always;
                             });
                           }
+                          setState(() {
+                            submitClicked = false;
+                          });
                         },
-                  child: const Text(
-                    'Submit',
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  child: submitClicked
+                      ? const CircularProgressIndicator.adaptive(
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                          strokeWidth: 1.2,
+                        )
+                      : const Text(
+                          'Submit',
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
               ),
               const Gap(20.0),
@@ -158,7 +221,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 controller: _usernameController,
                 label: 'Username',
                 hintText: 'Enter your username',
-                isReadOnly: authState == AuthState.loading,
+                isReadOnly: isLoading,
               ),
               const Gap(20.0),
               SizedBox(
@@ -172,9 +235,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     side:
                         const BorderSide(color: Colors.deepPurple, width: 1.7),
                   ),
-                  onPressed: (authState == AuthState.loading)
+                  onPressed: (isLoading)
                       ? null
                       : () {
+                          setState(() {
+                            createClicked = true;
+                          });
                           if (_formKey.currentState!.validate()) {
                             _createAccount();
                           } else {
@@ -182,11 +248,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               _autovalidateMode = AutovalidateMode.always;
                             });
                           }
+                          setState(() {
+                            createClicked = false;
+                          });
                         },
-                  child: (authState == AuthState.loading)
+                  child: createClicked
                       ? const CircularProgressIndicator.adaptive(
                           valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.deepPurple),
+                              AlwaysStoppedAnimation<Color>(Colors.white),
                           strokeWidth: 1.2,
                         )
                       : const Text(

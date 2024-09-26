@@ -34,6 +34,8 @@ final class AuthRepository {
         password: passcode,
       );
       return res;
+    } on AuthException catch (e) {
+      throw AuthException(e.message);
     } catch (e) {
       throw Exception(e.toString());
     }
