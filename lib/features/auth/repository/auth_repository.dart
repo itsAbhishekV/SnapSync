@@ -10,6 +10,8 @@ final authRepositoryProvider = Provider<AuthRepository>(
 final class AuthRepository {
   final _supabaseClient = Supabase.instance.client;
 
+  Stream<AuthState> get authState => _supabaseClient.auth.onAuthStateChange;
+
   Future<AuthResponse> signUp({
     required String email,
     required String password,
@@ -43,5 +45,9 @@ final class AuthRepository {
     } catch (e) {
       throw Exception(e.toString());
     }
+  }
+
+  Future<void> signOut() async {
+    await _supabaseClient.auth.signOut();
   }
 }

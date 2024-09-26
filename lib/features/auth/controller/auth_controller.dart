@@ -2,50 +2,86 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:snapsync/features/exports.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-final authControllerProvider = StateNotifierProvider<AuthController, bool>(
+class UserState {
+  final bool isLoading;
+  final User? user;
+
+  UserState({required this.isLoading, this.user});
+
+  UserState copyWith({bool? isLoading, User? user}) {
+    return UserState(
+      isLoading: isLoading ?? this.isLoading,
+      user: user ?? this.user,
+    );
+  }
+}
+
+final authControllerProvider = StateNotifierProvider<AuthController, UserState>(
   (ref) {
     return AuthController(
-      ref.watch(
-        authRepositoryProvider,
-      ),
+      ref.watch(authRepositoryProvider),
     );
   },
 );
 
-class AuthController extends StateNotifier<bool> {
+class AuthController extends StateNotifier<UserState> {
   final AuthRepository _authRepository;
 
-  AuthController(this._authRepository) : super(false);
+  AuthController(this._authRepository)
+      : super(UserState(isLoading: false, user: null)) {
+    _authRepository.authState.listen((event) {
+      state = state.copyWith(
+        user: event.session?.user,
+      );
+    });
+  }
 
-  Future<void> signUp(
-      {required String email,
-      required String password,
-      required String username}) async {
-    state = true;
+  Future<void> signUp({
+    required String email,
+    required String password,
+    required String username,
+  }) async {
+    state = state.copyWith(isLoading: true);
     try {
       await _authRepository.signUp(
-          email: email, password: password, username: username);
-      state = false;
+        email: email,
+        password: password,
+        username: username,
+      );
+      state = state.copyWith(isLoading: false);
     } on AuthException catch (e) {
-      state = false;
+      state = state.copyWith(isLoading: false);
       throw AuthException(e.message);
     } catch (e) {
-      state = false;
+      state = state.copyWith(isLoading: false);
       throw Exception(e.toString());
     }
   }
 
-  Future<void> loginWithPasscode(
-      {required String email, required String passcode}) async {
-    state = true;
+  Future<void> loginWithPasscode({
+    required String email,
+    required String passcode,
+  }) async {
+    state = state.copyWith(isLoading: true);
     try {
       await _authRepository.loginWithPasscode(email: email, passcode: passcode);
-      state = false;
+      state = state.copyWith(isLoading: false);
     } on AuthException catch (e) {
-      state = false;
+      state = state.copyWith(isLoading: false);
       throw AuthException(e.message);
     } catch (e) {
-      state = true;
+      state = state.copyWith(isLoading: false);
+      throw Exception(e.toString());
+    }
+  }
+
+  Future<void> signOut() async {
+    state = state.copyWith(isLoading: true);
+    try {
+      await _authRepository.signOut();
+      state = state.copyWith(isLoading: false);
+    } catch (e) {
+      state = state.copyWith(isLoading: false);
       throw Exception(e.toString());
     }
   }
