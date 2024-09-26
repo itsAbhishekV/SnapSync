@@ -27,6 +27,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _passwordController = TextEditingController();
   final _usernameController = TextEditingController();
 
+  bool submitClicked = false;
+  bool createClicked = false;
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -46,20 +49,35 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> _createAccount() async {
     if (_allowSubmit() && _usernameController.text.isNotEmpty) {
       try {
-        ref.read(authControllerProvider.notifier).signUp(
+        setState(() {
+          createClicked = true;
+        });
+
+        await ref.read(authControllerProvider.notifier).signUp(
               email: _emailController.text,
               password: _passwordController.text,
               username: _usernameController.text,
             );
 
+        setState(() {
+          createClicked = false;
+        });
+
         if (mounted) {
           showSnackBar(context, 'Account Created');
+          context.go(HomeScreen.routePath);
         }
       } on AuthException catch (e) {
+        setState(() {
+          createClicked = false;
+        });
         if (mounted) {
           showSnackBar(context, e.message);
         }
       } catch (e) {
+        setState(() {
+          createClicked = false;
+        });
         if (mounted) {
           showSnackBar(context, e.toString());
         }
@@ -72,19 +90,33 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> _loginWithPasscode() async {
     if (_allowSubmit()) {
       try {
+        setState(() {
+          submitClicked = true;
+        });
         await ref.read(authControllerProvider.notifier).loginWithPasscode(
               email: _emailController.text,
               passcode: _passwordController.text,
             );
+
+        setState(() {
+          submitClicked = false;
+        });
+
         if (mounted) {
           showSnackBar(context, 'Login Successful');
           context.go(HomeScreen.routePath);
         }
       } on AuthException catch (e) {
+        setState(() {
+          submitClicked = false;
+        });
         if (mounted) {
           showSnackBar(context, e.message);
         }
       } catch (e) {
+        setState(() {
+          submitClicked = false;
+        });
         throw Exception(e.toString());
       }
     } else {
@@ -95,8 +127,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final isLoading = ref.watch(authControllerProvider);
-    bool submitClicked = false;
-    bool createClicked = false;
 
     return Scaffold(
       appBar: AppBar(
@@ -157,9 +187,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   onPressed: (isLoading)
                       ? null
                       : () {
-                          setState(() {
-                            submitClicked = true;
-                          });
                           if (_formKey.currentState!.validate()) {
                             _loginWithPasscode();
                           } else {
@@ -167,14 +194,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               _autovalidateMode = AutovalidateMode.always;
                             });
                           }
-                          setState(() {
-                            submitClicked = false;
-                          });
                         },
                   child: submitClicked
                       ? const CircularProgressIndicator.adaptive(
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
                           strokeWidth: 1.2,
                         )
                       : const Text(
@@ -202,9 +227,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 child: OutlinedButton(
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
-                        vertical: 8.0, horizontal: 12.0),
+                      vertical: 8.0,
+                      horizontal: 12.0,
+                    ),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(36.0)),
+                      borderRadius: BorderRadius.circular(
+                        36.0,
+                      ),
+                    ),
                     side:
                         const BorderSide(color: Colors.deepPurple, width: 1.7),
                   ),
@@ -228,7 +258,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   child: createClicked
                       ? const CircularProgressIndicator.adaptive(
                           valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
+                              AlwaysStoppedAnimation<Color>(Colors.deepPurple),
                           strokeWidth: 1.2,
                         )
                       : const Text(
