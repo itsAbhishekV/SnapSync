@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:pinput/pinput.dart';
 
 final defaultPinPutTheme = PinTheme(
-  width: 44.0,
-  height: 44.0,
+  width: 48.0,
+  height: 48.0,
   decoration: BoxDecoration(
-    borderRadius: BorderRadius.circular(32.0),
+    borderRadius: BorderRadius.circular(24.0),
     color: Colors.white30,
     border: Border.all(
       color: Colors.grey.shade600,
@@ -13,7 +13,7 @@ final defaultPinPutTheme = PinTheme(
     ),
   ),
   textStyle: const TextStyle(
-    fontWeight: FontWeight.w700,
+    fontWeight: FontWeight.w600,
     fontSize: 16.0,
   ),
   padding: const EdgeInsets.all(10.0),
@@ -23,10 +23,10 @@ final defaultPinPutTheme = PinTheme(
 );
 
 final focusedPinPutTheme = PinTheme(
-  width: 44.0,
-  height: 44.0,
+  width: 48.0,
+  height: 48.0,
   decoration: BoxDecoration(
-    borderRadius: BorderRadius.circular(32.0),
+    borderRadius: BorderRadius.circular(24.0),
     color: Colors.white,
     border: Border.all(
       color: Colors.deepPurple,
@@ -34,7 +34,7 @@ final focusedPinPutTheme = PinTheme(
     ),
   ),
   textStyle: const TextStyle(
-    fontWeight: FontWeight.w700,
+    fontWeight: FontWeight.w600,
     fontSize: 16.0,
   ),
   padding: const EdgeInsets.all(10.0),

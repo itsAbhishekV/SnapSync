@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pinput/pinput.dart';
 import 'package:snapsync/features/exports.dart';
 import 'package:snapsync/widgets/exports.dart';
@@ -60,7 +61,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               password: _passwordController.text,
               username: _usernameController.text,
             );
-        if (mounted) {}
+        if (mounted) {
+          context.go(HomeScreen.routePath);
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -149,13 +152,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 obscuringCharacter: '*',
                 controller: _passwordController,
                 onChanged: (String val) {
-                  setState(() {
-                    if (val.length == 6) {
-                      _submitAllowed = true;
-                    } else {
-                      _submitAllowed = false;
-                    }
-                  });
+                  setState(
+                    () {
+                      if (val.length == 6) {
+                        _submitAllowed = true;
+                      } else {
+                        _submitAllowed = false;
+                      }
+                    },
+                  );
                 },
                 defaultPinTheme: defaultPinPutTheme,
                 focusedPinTheme: focusedPinPutTheme,
