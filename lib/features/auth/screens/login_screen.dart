@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
+import 'package:pinput/pinput.dart';
 import 'package:snapsync/features/exports.dart';
 import 'package:snapsync/widgets/exports.dart';
 import 'package:validation_pro/validate.dart';
+
+import '../../../core/pin_put_theme.dart';
 
 GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -20,6 +22,7 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   bool _isSubmitting = false;
+  bool _submitAllowed = false;
   AutovalidateMode? _autovalidateMode;
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -37,8 +40,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (_emailController.text.isNotEmpty &&
         _usernameController.text.isNotEmpty &&
         _passwordController.text.isNotEmpty) {
-      if (Validate.isEmail(_emailController.text) &&
-          Validate.isPassword(_passwordController.text)) {
+      if (Validate.isEmail(_emailController.text)) {
         return true;
       }
       return false;
@@ -58,16 +60,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               password: _passwordController.text,
               username: _usernameController.text,
             );
-        if (mounted) {
-          context.push(
-            VerificationScreen.routePath,
-            extra: VerificationPathParams(
-              email: _emailController.text,
-              password: _passwordController.text,
-              username: _usernameController.text,
-            ),
-          );
-        }
+        if (mounted) {}
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -77,6 +70,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         );
       }
     } catch (e) {
+      print('error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -135,7 +129,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             children: [
               SnapSyncLabelTextField(
                 controller: _emailController,
-                label: 'Email Address',
+                label: 'Email Address and Passcode',
                 hintText: 'Enter your email',
                 keyboardType: TextInputType.emailAddress,
                 isReadOnly: _isSubmitting,
@@ -148,27 +142,32 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 },
               ),
               const Gap(20.0),
-              SnapSyncLabelTextField(
+              // Pin-put OTP Code
+              Pinput(
+                length: 6,
+                obscureText: true,
+                obscuringCharacter: '*',
                 controller: _passwordController,
-                label: 'Password',
-                hintText: 'Enter your password',
-                keyboardType: TextInputType.text,
-                isReadOnly: _isSubmitting,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your password.';
-                  }
-
-                  return null;
+                onChanged: (String val) {
+                  setState(() {
+                    if (val.length == 6) {
+                      _submitAllowed = true;
+                    } else {
+                      _submitAllowed = false;
+                    }
+                  });
                 },
+                defaultPinTheme: defaultPinPutTheme,
+                focusedPinTheme: focusedPinPutTheme,
+                submittedPinTheme: focusedPinPutTheme,
               ),
-              const Gap(20.0),
+              const Gap(32.0),
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
-                      vertical: 8.0,
+                      vertical: 10.0,
                       horizontal: 12.0,
                     ),
                     shape: RoundedRectangleBorder(
@@ -176,7 +175,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                     backgroundColor: Colors.deepPurple,
                   ),
-                  onPressed: _isSubmitting
+                  onPressed: _isSubmitting && !_submitAllowed
                       ? null
                       : () {
                           if (_formKey.currentState!.validate()) {
@@ -234,14 +233,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             });
                           }
                         },
-                  child: const Text(
-                    'or Create an Account',
-                    style: TextStyle(
-                      color: Colors.deepPurple,
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  child: _isSubmitting
+                      ? const CircularProgressIndicator.adaptive(
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.deepPurple,
+                          ),
+                          strokeWidth: 1.2,
+                        )
+                      : const Text(
+                          'or Create an Account',
+                          style: TextStyle(
+                            color: Colors.deepPurple,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
               ),
             ],

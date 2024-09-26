@@ -15,18 +15,5 @@ final routes = GoRouter(
       name: LoginScreen.routeName,
       builder: (_, __) => const LoginScreen(),
     ),
-    GoRoute(
-      path: VerificationScreen.routePath,
-      name: VerificationScreen.routeName,
-      builder: (_, state) {
-        final params = state.extra as VerificationPathParams?;
-
-        if (params == null) {
-          throw Exception('Missing path params');
-        }
-
-        return VerificationScreen(pathParams: params);
-      },
-    ),
   ],
 );
