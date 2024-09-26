@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:snapsync/features/exports.dart';
 
-final authControllerProvider = StateNotifierProvider<AuthController, bool>(
+enum AuthState { idle, loading, success, error }
+
+final authControllerProvider = StateNotifierProvider<AuthController, AuthState>(
   (ref) {
     return AuthController(
       ref.watch(
@@ -11,48 +13,35 @@ final authControllerProvider = StateNotifierProvider<AuthController, bool>(
   },
 );
 
-class AuthController extends StateNotifier<bool> {
+class AuthController extends StateNotifier<AuthState> {
   final AuthRepository _authRepository;
 
-  AuthController(this._authRepository) : super(false);
+  AuthController(this._authRepository) : super(AuthState.idle);
 
-  Future<void> signUp({
-    required String email,
-    required String password,
-    required String username,
-  }) async {
-    state = true;
+  Future<void> signUp(
+      {required String email,
+      required String password,
+      required String username}) async {
+    state = AuthState.loading;
     try {
       await _authRepository.signUp(
-        email: email,
-        password: password,
-        username: username,
-      );
-      state = false;
+          email: email, password: password, username: username);
+      state = AuthState.success;
     } catch (e) {
-      state = false;
+      state = AuthState.error;
       throw Exception(e.toString());
-    } finally {
-      state = false;
     }
   }
 
-  Future<void> verifyCode({
-    required String email,
-    required String code,
-  }) async {
-    state = true;
+  Future<void> loginWithPasscode(
+      {required String email, required String passcode}) async {
+    state = AuthState.loading;
     try {
-      await _authRepository.verifyCode(
-        email: email,
-        code: code,
-      );
-      state = false;
+      await _authRepository.loginWithPasscode(email: email, passcode: passcode);
+      state = AuthState.success;
     } catch (e) {
-      state = false;
+      state = AuthState.error;
       throw Exception(e.toString());
-    } finally {
-      state = false;
     }
   }
 }

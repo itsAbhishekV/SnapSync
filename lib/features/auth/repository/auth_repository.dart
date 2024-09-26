@@ -24,15 +24,14 @@ final class AuthRepository {
     }
   }
 
-  Future<AuthResponse> verifyCode({
+  Future<AuthResponse> loginWithPasscode({
     required String email,
-    required String code,
+    required String passcode,
   }) async {
     try {
-      final res = await _supabaseClient.auth.verifyOTP(
-        type: OtpType.signup,
+      final res = await _supabaseClient.auth.signInWithPassword(
         email: email,
-        token: code,
+        password: passcode,
       );
       return res;
     } catch (e) {

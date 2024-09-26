@@ -3,11 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pinput/pinput.dart';
+import 'package:snapsync/core/exports.dart';
 import 'package:snapsync/features/exports.dart';
 import 'package:snapsync/widgets/exports.dart';
 import 'package:validation_pro/validate.dart';
-
-import '../../../core/pin_put_theme.dart';
 
 GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -22,8 +21,6 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  bool _isSubmitting = false;
-  bool _submitAllowed = false;
   AutovalidateMode? _autovalidateMode;
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -41,92 +38,59 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (_emailController.text.isNotEmpty &&
         _usernameController.text.isNotEmpty &&
         _passwordController.text.isNotEmpty) {
-      if (Validate.isEmail(_emailController.text)) {
-        return true;
-      }
-      return false;
+      return Validate.isEmail(_emailController.text);
     }
     return false;
   }
 
   Future<void> _createAccount() async {
-    try {
-      setState(() {
-        _isSubmitting = true;
-      });
-
-      if (_allowSubmit()) {
-        await ref.read(authControllerProvider.notifier).signUp(
+    if (_allowSubmit()) {
+      try {
+        ref.read(authControllerProvider.notifier).signUp(
               email: _emailController.text,
               password: _passwordController.text,
               username: _usernameController.text,
             );
+
         if (mounted) {
           context.go(HomeScreen.routePath);
         }
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please enter valid email and password'),
-            duration: Duration(seconds: 2),
-          ),
-        );
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(e.toString()),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
       }
-    } catch (e) {
-      print('error: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString()),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
-      throw Exception(e.toString());
-    } finally {
-      setState(() {
-        _isSubmitting = false;
-      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter valid email and password'),
+          duration: Duration(seconds: 2),
+        ),
+      );
     }
   }
 
-  // Future<void> _verifyCode() async {
-  //   try {
-  //     setState(() {
-  //       _isSubmitting = true;
-  //     });
-  //
-  //     await ref.read(authControllerProvider.notifier).verifyCode(
-  //       email: _emailController.text,
-  //       code: _codeController.text,
-  //     );
-  //   } catch (e) {
-  //     throw Exception(e.toString());
-  //   } finally {
-  //     setState(() {
-  //       _isSubmitting = false;
-  //     });
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authControllerProvider);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.deepPurple,
         title: const Text(
           'Login',
-          style: TextStyle(
-            color: Colors.white,
-          ),
+          style: TextStyle(color: Colors.white),
         ),
         centerTitle: true,
-        scrolledUnderElevation: 0.0,
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
         child: Form(
-          key: _formKey,
           autovalidateMode: _autovalidateMode,
           child: Column(
             children: [
@@ -135,52 +99,38 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 label: 'Email Address and Passcode',
                 hintText: 'Enter your email',
                 keyboardType: TextInputType.emailAddress,
-                isReadOnly: _isSubmitting,
+                isReadOnly: authState == AuthState.loading,
+                // Disable input when loading
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your email';
                   }
-
                   return null;
                 },
               ),
               const Gap(20.0),
-              // Pin-put OTP Code
               Pinput(
                 length: 6,
                 obscureText: true,
                 obscuringCharacter: '*',
                 controller: _passwordController,
-                onChanged: (String val) {
-                  setState(
-                    () {
-                      if (val.length == 6) {
-                        _submitAllowed = true;
-                      } else {
-                        _submitAllowed = false;
-                      }
-                    },
-                  );
-                },
+                onChanged: (String val) {},
                 defaultPinTheme: defaultPinPutTheme,
                 focusedPinTheme: focusedPinPutTheme,
                 submittedPinTheme: focusedPinPutTheme,
               ),
-              const Gap(32.0),
+              const Gap(24.0),
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
-                      vertical: 10.0,
-                      horizontal: 12.0,
-                    ),
+                        vertical: 10.0, horizontal: 12.0),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(36.0),
-                    ),
+                        borderRadius: BorderRadius.circular(36.0)),
                     backgroundColor: Colors.deepPurple,
                   ),
-                  onPressed: _isSubmitting && !_submitAllowed
+                  onPressed: (authState == AuthState.loading)
                       ? null
                       : () {
                           if (_formKey.currentState!.validate()) {
@@ -208,26 +158,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 controller: _usernameController,
                 label: 'Username',
                 hintText: 'Enter your username',
-                isReadOnly: _isSubmitting,
+                isReadOnly: authState == AuthState.loading,
               ),
-              const Spacer(),
+              const Gap(20.0),
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
-                      vertical: 8.0,
-                      horizontal: 12.0,
-                    ),
+                        vertical: 8.0, horizontal: 12.0),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(36.0),
-                    ),
-                    side: const BorderSide(
-                      color: Colors.deepPurple,
-                      width: 1.7,
-                    ),
+                        borderRadius: BorderRadius.circular(36.0)),
+                    side:
+                        const BorderSide(color: Colors.deepPurple, width: 1.7),
                   ),
-                  onPressed: _isSubmitting
+                  onPressed: (authState == AuthState.loading)
                       ? null
                       : () {
                           if (_formKey.currentState!.validate()) {
@@ -238,11 +183,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             });
                           }
                         },
-                  child: _isSubmitting
+                  child: (authState == AuthState.loading)
                       ? const CircularProgressIndicator.adaptive(
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.deepPurple,
-                          ),
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.deepPurple),
                           strokeWidth: 1.2,
                         )
                       : const Text(
