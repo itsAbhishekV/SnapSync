@@ -22,7 +22,7 @@ const appBarTheme = AppBarTheme(
 );
 
 final snackBarTheme = SnackBarThemeData(
-  backgroundColor: Colors.deepPurpleAccent,
+  backgroundColor: Colors.deepPurple,
   elevation: 8.0,
   shape: RoundedRectangleBorder(
     borderRadius: BorderRadius.circular(8.0),

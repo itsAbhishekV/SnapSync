@@ -39,6 +39,7 @@ dependencies:
   flutter_riverpod: ^2.5.1
   gap: ^3.0.1
   go_router: ^14.2.8
+  validation_pro: ^1.2.0
 
 dev_dependencies:
   flutter_test:

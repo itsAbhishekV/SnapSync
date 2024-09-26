@@ -9,6 +9,7 @@ class SnapSyncLabelTextField extends StatelessWidget {
   final bool isReadOnly;
   final String? errorText;
   final String? Function(String?)? validator;
+  final int? maxLength;
 
   const SnapSyncLabelTextField({
     super.key,
@@ -19,6 +20,7 @@ class SnapSyncLabelTextField extends StatelessWidget {
     this.isReadOnly = false,
     this.errorText,
     this.validator,
+    this.maxLength,
   });
 
   @override
@@ -41,6 +43,7 @@ class SnapSyncLabelTextField extends StatelessWidget {
         ),
         const Gap(8.0),
         TextFormField(
+          maxLength: maxLength,
           controller: controller,
           keyboardType: keyboardType,
           cursorColor: Colors.deepPurple,
@@ -48,6 +51,7 @@ class SnapSyncLabelTextField extends StatelessWidget {
           cursorHeight: 18.0,
           readOnly: isReadOnly,
           style: const TextStyle(
+            fontWeight: FontWeight.w500,
             color: Colors.black,
           ),
           validator: validator,
@@ -59,7 +63,7 @@ class SnapSyncLabelTextField extends StatelessWidget {
             hintText: hintText,
             contentPadding: const EdgeInsets.symmetric(
               vertical: 16.0,
-              horizontal: 32.0,
+              horizontal: 28.0,
             ),
           ),
         ),

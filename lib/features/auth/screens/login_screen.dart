@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:snapsync/features/auth/controller/auth_controller.dart';
+import 'package:snapsync/features/exports.dart';
 import 'package:snapsync/widgets/exports.dart';
+import 'package:validation_pro/validate.dart';
 
 GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -32,20 +33,48 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
+  bool _allowSubmit() {
+    if (_emailController.text.isNotEmpty &&
+        _usernameController.text.isNotEmpty &&
+        _passwordController.text.isNotEmpty) {
+      if (Validate.isEmail(_emailController.text) &&
+          Validate.isPassword(_passwordController.text)) {
+        return true;
+      }
+      return false;
+    }
+    return false;
+  }
+
   Future<void> _createAccount() async {
     try {
       setState(() {
         _isSubmitting = true;
       });
 
-      await ref.read(authControllerProvider.notifier).signUp(
-            email: _emailController.text,
-            password: _passwordController.text,
-            username: _usernameController.text,
+      if (_allowSubmit()) {
+        await ref.read(authControllerProvider.notifier).signUp(
+              email: _emailController.text,
+              password: _passwordController.text,
+              username: _usernameController.text,
+            );
+        if (mounted) {
+          context.push(
+            VerificationScreen.routePath,
+            extra: VerificationPathParams(
+              email: _emailController.text,
+              password: _passwordController.text,
+              username: _usernameController.text,
+            ),
           );
-
-      if (mounted) {
-        context.push('/verification');
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please enter valid email and password'),
+            duration: Duration(seconds: 2),
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -171,12 +200,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               const Divider(thickness: 1),
               const Gap(20.0),
               SnapSyncLabelTextField(
+                maxLength: 12,
                 controller: _usernameController,
                 label: 'Username',
                 hintText: 'Enter your username',
                 isReadOnly: _isSubmitting,
               ),
-              const Gap(20.0),
+              const Spacer(),
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(
