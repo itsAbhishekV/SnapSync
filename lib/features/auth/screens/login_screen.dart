@@ -64,7 +64,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         });
 
         if (mounted) {
-          showSnackBar(context, 'Account Created');
           context.go(HomeScreen.routePath);
         }
       } on AuthException catch (e) {
@@ -103,7 +102,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         });
 
         if (mounted) {
-          showSnackBar(context, 'Login Successful');
           context.go(HomeScreen.routePath);
         }
       } on AuthException catch (e) {
@@ -126,7 +124,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isLoading = ref.watch(authControllerProvider);
+    final userState = ref.watch(authControllerProvider);
+    final isLoading = userState.isLoading;
 
     return Scaffold(
       appBar: AppBar(
