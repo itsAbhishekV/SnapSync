@@ -64,7 +64,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         });
 
         if (mounted) {
-          showSnackBar(context, 'Account Created');
           context.go(HomeScreen.routePath);
         }
       } on AuthException catch (e) {
@@ -103,7 +102,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         });
 
         if (mounted) {
-          showSnackBar(context, 'Login Successful');
           context.go(HomeScreen.routePath);
         }
       } on AuthException catch (e) {

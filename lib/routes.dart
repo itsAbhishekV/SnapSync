@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'features/exports.dart';
 
 final routes = GoRouter(
-  initialLocation: LoginScreen.routePath,
+  initialLocation: HomeScreen.routePath,
   routes: [
     GoRoute(
       path: HomeScreen.routePath,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../../auth/controller/auth_controller.dart';
+import 'package:go_router/go_router.dart';
+import 'package:snapsync/features/exports.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   static const routeName = '/';
@@ -14,17 +14,74 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  void logOut(BuildContext context, WidgetRef ref) {
+    ref.watch(authControllerProvider.notifier).signOut(context);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final userState = ref.watch(authControllerProvider);
-    final user = userState.user?.email;
+    final user = ref.watch(authControllerProvider).user;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
+        title: const Text(
+          'SnapSync',
+          style: TextStyle(
+            color: Colors.deepPurple,
+          ),
+        ),
+        actions: [
+          if (user == null)
+            GestureDetector(
+                onTap: () {
+                  context.go(LoginScreen.routePath);
+                },
+                child: const Padding(
+                  padding: EdgeInsets.only(right: 12.0),
+                  child: Text(
+                    'Login',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 12.0,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                )),
+          if (user != null)
+            GestureDetector(
+              onTap: () {
+                logOut(context, ref);
+                print('state $user');
+              },
+              child: const Padding(
+                padding: EdgeInsets.only(right: 12.0),
+                child: Text(
+                  'Log out',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 12.0,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
-      body: Center(
-        child: Text('$user'),
+      body: const Center(
+        child: Text('Home'),
       ),
+      floatingActionButton: user == null
+          ? null
+          : FloatingActionButton(
+              shape: const CircleBorder(),
+              backgroundColor: Colors.deepPurple,
+              onPressed: () {},
+              child: const Icon(
+                Icons.add,
+                size: 24.0,
+                color: Colors.white,
+              ),
+            ),
     );
   }
 }

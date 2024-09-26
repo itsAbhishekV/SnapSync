@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:snapsync/features/exports.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -11,7 +12,7 @@ class UserState {
   UserState copyWith({bool? isLoading, User? user}) {
     return UserState(
       isLoading: isLoading ?? this.isLoading,
-      user: user ?? this.user,
+      user: user,
     );
   }
 }
@@ -29,10 +30,12 @@ class AuthController extends StateNotifier<UserState> {
 
   AuthController(this._authRepository)
       : super(UserState(isLoading: false, user: null)) {
-    _authRepository.authState.listen((event) {
-      state = state.copyWith(
-        user: event.session?.user,
-      );
+    _authRepository.authState.listen((AuthState event) {
+      if (event.event == AuthChangeEvent.signedOut) {
+        state = state.copyWith(user: null);
+      } else if (event.event == AuthChangeEvent.signedIn) {
+        state = state.copyWith(user: event.session?.user);
+      }
     });
   }
 
@@ -75,13 +78,13 @@ class AuthController extends StateNotifier<UserState> {
     }
   }
 
-  Future<void> signOut() async {
+  Future<void> signOut(BuildContext context) async {
     state = state.copyWith(isLoading: true);
     try {
       await _authRepository.signOut();
       state = state.copyWith(isLoading: false);
     } catch (e) {
-      state = state.copyWith(isLoading: false);
+      state = state.copyWith(isLoading: false, user: null);
       throw Exception(e.toString());
     }
   }
