@@ -1,9 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-final authRepositoryProvider = Provider<AuthRepository>((ref) {
-  return AuthRepository();
-});
+final authRepositoryProvider = Provider<AuthRepository>(
+  (ref) {
+    return AuthRepository();
+  },
+);
 
 final class AuthRepository {
   final _supabaseClient = Supabase.instance.client;
@@ -19,6 +21,8 @@ final class AuthRepository {
         'username': username,
       });
       return res;
+    } on AuthException catch (e) {
+      throw AuthException(e.message);
     } catch (e) {
       throw Exception(e.toString());
     }

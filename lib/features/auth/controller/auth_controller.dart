@@ -26,6 +26,9 @@ class AuthController extends StateNotifier<bool> {
       await _authRepository.signUp(
           email: email, password: password, username: username);
       state = false;
+    } on AuthException catch (e) {
+      state = false;
+      throw AuthException(e.message);
     } catch (e) {
       state = false;
       throw Exception(e.toString());

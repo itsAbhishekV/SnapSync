@@ -53,31 +53,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             );
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Account Created'),
-              duration: Duration(seconds: 2),
-            ),
-          );
-          context.go(HomeScreen.routePath);
+          showSnackBar(context, 'Account Created');
+        }
+      } on AuthException catch (e) {
+        if (mounted) {
+          showSnackBar(context, e.message);
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(e.toString()),
-              duration: const Duration(seconds: 2),
-            ),
-          );
+          showSnackBar(context, e.toString());
         }
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter valid email and password'),
-          duration: Duration(seconds: 2),
-        ),
-      );
+      showSnackBar(context, 'Please enter valid email and password');
     }
   }
 
@@ -89,33 +77,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               passcode: _passwordController.text,
             );
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Login Successful'),
-              duration: Duration(seconds: 2),
-            ),
-          );
+          showSnackBar(context, 'Login Successful');
           context.go(HomeScreen.routePath);
         }
       } on AuthException catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(e.message),
-              duration: const Duration(seconds: 2),
-            ),
-          );
+          showSnackBar(context, e.message);
         }
       } catch (e) {
         throw Exception(e.toString());
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter valid email and password'),
-          duration: Duration(seconds: 2),
-        ),
-      );
+      showSnackBar(context, 'Please enter valid email and password');
     }
   }
 
