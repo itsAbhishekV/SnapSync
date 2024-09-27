@@ -59,4 +59,16 @@ class SnapController extends StateNotifier<AsyncValue<List<SnapModel>>> {
       state = AsyncValue.error(e.toString(), stackTrace);
     }
   }
+
+  Future<void> updateSnap({
+    required int id,
+    required String title,
+  }) async {
+    state = const AsyncValue.loading();
+    try {
+      await snapRepository.updateSnap(id: id, title: title);
+    } catch (e, stackTrace) {
+      state = AsyncValue.error(e.toString(), stackTrace);
+    }
+  }
 }

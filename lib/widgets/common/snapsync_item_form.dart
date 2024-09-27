@@ -4,13 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:snapsync/core/exports.dart';
 import 'package:snapsync/features/exports.dart';
+import 'package:snapsync/models/exports.dart';
 import 'package:snapsync/widgets/exports.dart';
 
-import '../../core/functions/show_snackbar.dart';
-
 class SnapSyncItemForm extends ConsumerStatefulWidget {
-  const SnapSyncItemForm({super.key});
+  const SnapSyncItemForm({super.key, this.snap});
+
+  final SnapModel? snap;
 
   @override
   ConsumerState<SnapSyncItemForm> createState() => _SnapSyncItemFormState();
@@ -21,12 +23,47 @@ class _SnapSyncItemFormState extends ConsumerState<SnapSyncItemForm> {
   AutovalidateMode? _autovalidateMode;
   bool _isSubmitting = false;
 
-  final _titleController = TextEditingController();
+  late TextEditingController _titleController;
   File? file;
+
+  @override
+  void initState() {
+    _titleController = TextEditingController(text: widget.snap?.title);
+    super.initState();
+  }
 
   void _popBottomSheet() {
     if (mounted) {
       context.pop();
+    }
+  }
+
+  Future<void> _updateSnap() async {
+    if (widget.snap == null) {
+      return;
+    }
+    try {
+      setState(() {
+        _isSubmitting = true;
+      });
+
+      print('title : ${widget.snap!.title}');
+
+      ref.read(snapControllerProvider.notifier).updateSnap(
+            id: widget.snap!.id,
+            title: _titleController.text,
+          );
+
+      _popBottomSheet();
+      setState(() {
+        _isSubmitting = false;
+      });
+    } catch (e) {
+      _popBottomSheet();
+      if (mounted) {
+        showSnackBar(context, e.toString());
+      }
+      throw Exception(e.toString());
     }
   }
 
@@ -67,9 +104,9 @@ class _SnapSyncItemFormState extends ConsumerState<SnapSyncItemForm> {
         child: Column(
           children: [
             const Gap(12.0),
-            const Text(
-              'Add a new Snap',
-              style: TextStyle(
+            Text(
+              widget.snap == null ? 'Add a new Snap' : 'Edit Snap',
+              style: const TextStyle(
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
               ),
@@ -79,6 +116,7 @@ class _SnapSyncItemFormState extends ConsumerState<SnapSyncItemForm> {
               controller: _titleController,
               isReadOnly: _isSubmitting,
               label: 'Title',
+              maxLength: 15,
               hintText: 'Add image title',
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -88,20 +126,30 @@ class _SnapSyncItemFormState extends ConsumerState<SnapSyncItemForm> {
               },
             ),
             const Gap(16.0),
-            FileUploadField(
-              validator: (value) {
-                if (value == null) {
-                  return 'Please select an image';
-                }
-                return null;
-              },
-              readOnly: _isSubmitting,
-              onChanged: (file) {
-                setState(() {
-                  this.file = file;
-                });
-              },
-            ),
+            if (widget.snap?.imageId != null) ...[
+              SizedBox(
+                height: 120.0,
+                child: Image.network(
+                  '${ref.watch(snapRepositoryProvider).storageUrl}/object/public/memories/${widget.snap!.profile.id}/${widget.snap!.imageId}',
+                  fit: BoxFit.cover,
+                ),
+              )
+            ],
+            if (widget.snap?.imageId == null)
+              FileUploadField(
+                validator: (value) {
+                  if (value == null) {
+                    return 'Please select an image';
+                  }
+                  return null;
+                },
+                readOnly: _isSubmitting,
+                onChanged: (file) {
+                  setState(() {
+                    this.file = file;
+                  });
+                },
+              ),
             const Gap(24.0),
             SizedBox(
               width: double.infinity,
@@ -120,6 +168,8 @@ class _SnapSyncItemFormState extends ConsumerState<SnapSyncItemForm> {
                       _autovalidateMode = AutovalidateMode.always;
                     });
                     return;
+                  } else if (widget.snap != null) {
+                    _updateSnap();
                   } else {
                     _createSnap();
                   }

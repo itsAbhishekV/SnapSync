@@ -60,7 +60,25 @@ class SnapRepository {
   Future<void> updateSnap({
     required int id,
     required String title,
-  }) async {}
+  }) async {
+    final profileId = _supabaseClient.auth.currentSession?.user.id;
+
+    if (profileId == null) {
+      throw Exception('Failed to update snap $profileId');
+    }
+
+    try {
+      await _supabaseClient
+          .from('memories')
+          .update({
+            'title': title,
+          })
+          .eq('id', id)
+          .eq('profile_id', profileId);
+    } catch (e) {
+      throw Exception('Failed to update snap $profileId $id');
+    }
+  }
 
   Future<void> deleteSnap(SnapModel snap) async {}
 }
