@@ -15,26 +15,36 @@ class _SnapSyncListViewState extends ConsumerState<SnapSyncListView> {
   @override
   Widget build(BuildContext context) {
     final snapsState = ref.watch(snapControllerProvider);
-    print(snapsState);
 
     return snapsState.when(
       data: (snaps) {
-        return MasonryGridView.count(
-          crossAxisCount: 2,
-          mainAxisSpacing: 2,
-          crossAxisSpacing: 2,
-          itemCount: snaps.length,
-          itemBuilder: (context, index) {
-            final snap = snaps[index];
-            return SnapSyncItemView(
-              snap: snap,
-            );
-          },
-        );
+        return snaps.isEmpty
+            ? const Center(
+                child: Text(
+                  'No snaps found',
+                  style: TextStyle(
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black,
+                  ),
+                ),
+              )
+            : MasonryGridView.count(
+                crossAxisCount: 2,
+                mainAxisSpacing: 2,
+                crossAxisSpacing: 2,
+                itemCount: snaps.length,
+                itemBuilder: (context, index) {
+                  final snap = snaps[index];
+                  return SnapSyncItemView(
+                    snap: snap,
+                  );
+                },
+              );
       },
       error: (error, stackTrace) {
-        print(error);
-        print(stackTrace);
+        // print(error);
+        // print(stackTrace);
         return Text(error.toString());
       },
       loading: () {
