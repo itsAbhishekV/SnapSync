@@ -50,7 +50,7 @@ class _SnapSyncItemFormState extends ConsumerState<SnapSyncItemForm> {
                 return null;
               },
             ),
-            const Gap(12.0),
+            const Gap(16.0),
             FileUploadField(
               validator: (value) {
                 if (value == null) {
@@ -65,7 +65,63 @@ class _SnapSyncItemFormState extends ConsumerState<SnapSyncItemForm> {
                 });
               },
             ),
-            const Gap(12.0),
+            const Gap(24.0),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                style: OutlinedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 8.0,
+                    horizontal: 12.0,
+                  ),
+                ),
+                onPressed: () async {
+                  if (_formKey.currentState!.validate() == false) {
+                    setState(() {
+                      _autovalidateMode = AutovalidateMode.always;
+                    });
+                    return;
+                  } else {
+                    // todo = submit
+                  }
+                },
+                child: const Text(
+                  'Submit',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+            const Gap(10.0),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 8.0,
+                    horizontal: 12.0,
+                  ),
+                  side: const BorderSide(
+                    color: Colors.red,
+                    width: 1.7,
+                  ),
+                ),
+                onPressed: () {},
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    color: Colors.red,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
