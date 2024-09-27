@@ -71,4 +71,13 @@ class SnapController extends StateNotifier<AsyncValue<List<SnapModel>>> {
       state = AsyncValue.error(e.toString(), stackTrace);
     }
   }
+
+  Future<void> deleteSnap(SnapModel snap) async {
+    state = const AsyncValue.loading();
+    try {
+      await snapRepository.deleteSnap(snap);
+    } catch (e, stackTrace) {
+      state = AsyncValue.error(e.toString(), stackTrace);
+    }
+  }
 }

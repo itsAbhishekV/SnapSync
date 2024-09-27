@@ -80,5 +80,22 @@ class SnapRepository {
     }
   }
 
-  Future<void> deleteSnap(SnapModel snap) async {}
+  Future<void> deleteSnap(SnapModel snap) async {
+    final profileId = _supabaseClient.auth.currentSession?.user.id;
+    final imageId = snap.id;
+
+    if (profileId == null) {
+      throw Exception('Failed to delete snap $profileId $imageId');
+    }
+
+    try {
+      await _supabaseClient
+          .from('memories')
+          .delete()
+          .eq('id', snap.id)
+          .eq('profile_id', profileId);
+    } catch (e) {
+      throw Exception('Failed to delete snap $profileId $imageId');
+    }
+  }
 }

@@ -47,8 +47,6 @@ class _SnapSyncItemFormState extends ConsumerState<SnapSyncItemForm> {
         _isSubmitting = true;
       });
 
-      print('title : ${widget.snap!.title}');
-
       ref.read(snapControllerProvider.notifier).updateSnap(
             id: widget.snap!.id,
             title: _titleController.text,
@@ -82,6 +80,32 @@ class _SnapSyncItemFormState extends ConsumerState<SnapSyncItemForm> {
 
       _popBottomSheet();
 
+      setState(() {
+        _isSubmitting = false;
+      });
+    } catch (e) {
+      _popBottomSheet();
+      if (mounted) {
+        showSnackBar(context, e.toString());
+      }
+      throw Exception(e.toString());
+    }
+  }
+
+  Future<void> _deleteSnap() async {
+    if (widget.snap == null) {
+      return;
+    }
+    try {
+      setState(() {
+        _isSubmitting = true;
+      });
+
+      ref.read(snapControllerProvider.notifier).deleteSnap(
+            widget.snap!,
+          );
+
+      _popBottomSheet();
       setState(() {
         _isSubmitting = false;
       });
@@ -189,31 +213,38 @@ class _SnapSyncItemFormState extends ConsumerState<SnapSyncItemForm> {
                       ),
               ),
             ),
-            const Gap(10.0),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 8.0,
-                    horizontal: 12.0,
+            if (widget.snap != null) ...[
+              const Gap(10.0),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8.0,
+                      horizontal: 12.0,
+                    ),
+                    side: const BorderSide(
+                      color: Colors.red,
+                      width: 1.7,
+                    ),
                   ),
-                  side: const BorderSide(
-                    color: Colors.red,
-                    width: 1.7,
-                  ),
-                ),
-                onPressed: () {},
-                child: const Text(
-                  'Cancel',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    color: Colors.red,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  onPressed: _isSubmitting ? null : () => _deleteSnap(),
+                  child: _isSubmitting
+                      ? const CircularProgressIndicator(
+                          color: Colors.red,
+                          strokeWidth: 1.2,
+                        )
+                      : const Text(
+                          'Delete',
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            color: Colors.red,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
               ),
-            ),
+            ],
           ],
         ),
       ),
