@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:snapsync/core/exports.dart';
 import 'package:snapsync/features/exports.dart';
 import 'package:snapsync/widgets/exports.dart';
 
@@ -80,7 +81,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           : FloatingActionButton(
               shape: const CircleBorder(),
               backgroundColor: Colors.deepPurple,
-              onPressed: () {},
+              onPressed: () {
+                context.showBottomSheet(
+                  child: const Padding(
+                    padding: EdgeInsets.all(20.0),
+                    child: SnapSyncItemForm(),
+                  ),
+                );
+              },
               child: const Icon(
                 Icons.add,
                 size: 24.0,
