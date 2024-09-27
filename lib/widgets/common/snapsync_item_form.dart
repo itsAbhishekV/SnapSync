@@ -3,7 +3,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
+import 'package:snapsync/features/exports.dart';
 import 'package:snapsync/widgets/exports.dart';
+
+import '../../core/functions/show_snackbar.dart';
 
 class SnapSyncItemForm extends ConsumerStatefulWidget {
   const SnapSyncItemForm({super.key});
@@ -19,6 +23,39 @@ class _SnapSyncItemFormState extends ConsumerState<SnapSyncItemForm> {
 
   final _titleController = TextEditingController();
   File? file;
+
+  void _popBottomSheet() {
+    if (mounted) {
+      context.pop();
+    }
+  }
+
+  Future<void> _createSnap() async {
+    if (file == null) {
+      return;
+    }
+    try {
+      setState(() {
+        _isSubmitting = true;
+      });
+
+      await ref
+          .read(snapControllerProvider.notifier)
+          .createSnap(title: _titleController.text, file: file!);
+
+      _popBottomSheet();
+
+      setState(() {
+        _isSubmitting = false;
+      });
+    } catch (e) {
+      _popBottomSheet();
+      if (mounted) {
+        showSnackBar(context, e.toString());
+      }
+      throw Exception(e.toString());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,17 +121,22 @@ class _SnapSyncItemFormState extends ConsumerState<SnapSyncItemForm> {
                     });
                     return;
                   } else {
-                    // todo = submit
+                    _createSnap();
                   }
                 },
-                child: const Text(
-                  'Submit',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                child: _isSubmitting
+                    ? const CircularProgressIndicator.adaptive(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        strokeWidth: 1.2,
+                      )
+                    : const Text(
+                        'Submit',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
               ),
             ),
             const Gap(10.0),

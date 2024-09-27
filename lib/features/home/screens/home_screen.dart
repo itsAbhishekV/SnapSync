@@ -71,7 +71,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
       body: const Padding(
         padding: EdgeInsets.symmetric(
-          horizontal: 16.0,
+          horizontal: 10.0,
           vertical: 12.0,
         ),
         child: SnapSyncListView(),
