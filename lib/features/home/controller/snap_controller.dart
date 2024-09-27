@@ -20,12 +20,12 @@ class SnapController extends StateNotifier<AsyncValue<List<SnapModel>>> {
   SnapController({
     required this.snapRepository,
   }) : super(const AsyncValue.loading()) {
+    initSnapChannel();
     getSnaps();
   }
 
   Future<void> getSnaps() async {
     state = await AsyncValue.guard(() async {
-      initSnapChannel();
       final snaps = await snapRepository.getSnaps();
       return snaps;
     });
@@ -55,7 +55,6 @@ class SnapController extends StateNotifier<AsyncValue<List<SnapModel>>> {
     state = const AsyncValue.loading();
     try {
       await snapRepository.createSnap(title: title, file: file);
-      getSnaps();
     } catch (e, stackTrace) {
       state = AsyncValue.error(e.toString(), stackTrace);
     }

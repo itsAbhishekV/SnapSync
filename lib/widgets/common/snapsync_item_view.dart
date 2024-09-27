@@ -60,6 +60,7 @@ class _SnapSyncItemViewState extends ConsumerState<SnapSyncItemView> {
                     const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisSize: MainAxisSize.max,
                   children: [
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -67,15 +68,16 @@ class _SnapSyncItemViewState extends ConsumerState<SnapSyncItemView> {
                         Text(
                           widget.snap.profile.username,
                           style: const TextStyle(
-                            fontSize: 18.0,
+                            fontSize: 16.0,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
                         ),
                         Text(
                           widget.snap.title,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            fontSize: 16.0,
+                            fontSize: 14.0,
                             fontWeight: FontWeight.w500,
                             color: Colors.white70,
                           ),

@@ -125,8 +125,8 @@ class _SnapSyncItemFormState extends ConsumerState<SnapSyncItemForm> {
                   }
                 },
                 child: _isSubmitting
-                    ? const CircularProgressIndicator.adaptive(
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ? const CircularProgressIndicator(
+                        color: Colors.white,
                         strokeWidth: 1.2,
                       )
                     : const Text(
