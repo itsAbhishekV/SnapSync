@@ -94,6 +94,9 @@ class SnapRepository {
           .delete()
           .eq('id', snap.id)
           .eq('profile_id', profileId);
+      await _supabaseClient.storage
+          .from('memories')
+          .remove(['$profileId/$imageId']);
     } catch (e) {
       throw Exception('Failed to delete snap $profileId $imageId');
     }

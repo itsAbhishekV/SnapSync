@@ -21,7 +21,7 @@ class _SnapSyncListViewState extends ConsumerState<SnapSyncListView> {
         return snaps.isEmpty
             ? const Center(
                 child: Text(
-                  'No snaps found',
+                  r'No snaps found ¯\\_(ツ)_//¯',
                   style: TextStyle(
                     fontSize: 18.0,
                     fontWeight: FontWeight.w600,

@@ -105,10 +105,10 @@ class _SnapSyncItemFormState extends ConsumerState<SnapSyncItemForm> {
             widget.snap!,
           );
 
-      _popBottomSheet();
       setState(() {
         _isSubmitting = false;
       });
+      _popBottomSheet();
     } catch (e) {
       _popBottomSheet();
       if (mounted) {
@@ -199,9 +199,13 @@ class _SnapSyncItemFormState extends ConsumerState<SnapSyncItemForm> {
                   }
                 },
                 child: _isSubmitting
-                    ? const CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 1.2,
+                    ? const SizedBox(
+                        height: 12.0,
+                        width: 12.0,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 1.2,
+                        ),
                       )
                     : const Text(
                         'Submit',
@@ -230,9 +234,13 @@ class _SnapSyncItemFormState extends ConsumerState<SnapSyncItemForm> {
                   ),
                   onPressed: _isSubmitting ? null : () => _deleteSnap(),
                   child: _isSubmitting
-                      ? const CircularProgressIndicator(
-                          color: Colors.red,
-                          strokeWidth: 1.2,
+                      ? const SizedBox(
+                          width: 12.0,
+                          height: 12.0,
+                          child: CircularProgressIndicator(
+                            color: Colors.red,
+                            strokeWidth: 1.2,
+                          ),
                         )
                       : const Text(
                           'Delete',

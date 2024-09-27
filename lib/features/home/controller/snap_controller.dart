@@ -39,10 +39,7 @@ class SnapController extends StateNotifier<AsyncValue<List<SnapModel>>> {
           schema: 'public',
           table: 'memories',
           callback: (payload) async {
-            state = await AsyncValue.guard(() async {
-              final snaps = await snapRepository.getSnaps();
-              return snaps;
-            });
+            await getSnaps();
           },
         )
         .subscribe();
@@ -52,11 +49,13 @@ class SnapController extends StateNotifier<AsyncValue<List<SnapModel>>> {
     required String title,
     required File file,
   }) async {
-    state = const AsyncValue.loading();
     try {
+      state = AsyncValue.data(state.value ?? []);
+
       await snapRepository.createSnap(title: title, file: file);
+      await getSnaps();
     } catch (e, stackTrace) {
-      state = AsyncValue.error(e.toString(), stackTrace);
+      state = AsyncValue.error(e, stackTrace);
     }
   }
 
@@ -64,20 +63,23 @@ class SnapController extends StateNotifier<AsyncValue<List<SnapModel>>> {
     required int id,
     required String title,
   }) async {
-    state = const AsyncValue.loading();
     try {
       await snapRepository.updateSnap(id: id, title: title);
+      await getSnaps();
     } catch (e, stackTrace) {
-      state = AsyncValue.error(e.toString(), stackTrace);
+      state = AsyncValue.error(e, stackTrace);
     }
   }
 
   Future<void> deleteSnap(SnapModel snap) async {
-    state = const AsyncValue.loading();
     try {
+      state = AsyncValue.data(
+        (state.value ?? []).where((s) => s.id != snap.id).toList(),
+      );
+
       await snapRepository.deleteSnap(snap);
     } catch (e, stackTrace) {
-      state = AsyncValue.error(e.toString(), stackTrace);
+      state = AsyncValue.error(e, stackTrace);
     }
   }
 }

@@ -152,19 +152,6 @@ class _SnapSyncItemViewState extends ConsumerState<SnapSyncItemView> {
                           }
                           return const SizedBox.shrink();
                         },
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            color: Colors.grey[800],
-                            height: 110.0,
-                            child: const Center(
-                              child: Icon(
-                                Icons.broken_image,
-                                color: Colors.white54,
-                                size: 40.0,
-                              ),
-                            ),
-                          );
-                        },
                       ),
                     ],
                   ),
