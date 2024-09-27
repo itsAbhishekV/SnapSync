@@ -1,8 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:snapsync/features/exports.dart';
+import 'package:snapsync/models/snap_model.dart';
 
-final snapControllerProvider = StateNotifierProvider<SnapController,
-    AsyncValue<List<Map<String, dynamic>>>>(
+final snapControllerProvider =
+    StateNotifierProvider<SnapController, AsyncValue<List<SnapModel>>>(
   (ref) {
     return SnapController(
       snapRepository: ref.watch(snapRepositoryProvider),
@@ -10,27 +11,18 @@ final snapControllerProvider = StateNotifierProvider<SnapController,
   },
 );
 
-class SnapController
-    extends StateNotifier<AsyncValue<List<Map<String, dynamic>>>> {
+class SnapController extends StateNotifier<AsyncValue<List<SnapModel>>> {
   final SnapRepository snapRepository;
 
   SnapController({required this.snapRepository})
       : super(const AsyncValue.loading()) {
-    getSnaps();
+    _getSnaps();
   }
 
-  Future<void> getSnaps() async {
-    try {
-      state = const AsyncValue.loading();
-
+  Future<void> _getSnaps() async {
+    state = await AsyncValue.guard(() async {
       final snaps = await snapRepository.getSnaps();
-
-      state = AsyncValue.data(snaps);
-    } catch (e, stackTrace) {
-      state = AsyncValue.error(
-        e.toString(),
-        stackTrace,
-      );
-    }
+      return snaps;
+    });
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:snapsync/features/exports.dart';
+import 'package:snapsync/widgets/common/snapsync_item_view.dart';
 
 class SnapSyncListView extends ConsumerStatefulWidget {
   const SnapSyncListView({super.key});
@@ -18,14 +19,16 @@ class _SnapSyncListViewState extends ConsumerState<SnapSyncListView> {
 
     return snapsState.when(
       data: (snaps) {
-        print(snaps);
         return MasonryGridView.count(
           crossAxisCount: 2,
           mainAxisSpacing: 2,
           crossAxisSpacing: 2,
           itemCount: snaps.length,
           itemBuilder: (context, index) {
-            return Text(snaps[index]['title']);
+            final snap = snaps[index];
+            return SnapSyncItemView(
+              snap: snap,
+            );
           },
         );
       },
