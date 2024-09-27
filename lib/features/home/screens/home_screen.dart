@@ -36,7 +36,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           if (user == null)
             GestureDetector(
                 onTap: () {
-                  context.go(LoginScreen.routePath);
+                  context.push(LoginScreen.routePath);
                 },
                 child: const Padding(
                   padding: EdgeInsets.only(right: 12.0),
