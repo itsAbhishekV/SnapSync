@@ -30,6 +30,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   bool submitClicked = false;
   bool createClicked = false;
 
+  bool _isSubmitting = false;
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -50,6 +52,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (_allowSubmit() && _usernameController.text.isNotEmpty) {
       try {
         setState(() {
+          _isSubmitting = true;
           createClicked = true;
         });
 
@@ -60,6 +63,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             );
 
         setState(() {
+          _isSubmitting = false;
           createClicked = false;
         });
 
@@ -68,6 +72,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         }
       } on AuthException catch (e) {
         setState(() {
+          _isSubmitting = false;
           createClicked = false;
         });
         if (mounted) {
@@ -75,6 +80,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         }
       } catch (e) {
         setState(() {
+          _isSubmitting = false;
           createClicked = false;
         });
         if (mounted) {
@@ -90,6 +96,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (_allowSubmit()) {
       try {
         setState(() {
+          _isSubmitting = true;
           submitClicked = true;
         });
         await ref.read(authControllerProvider.notifier).loginWithPasscode(
@@ -98,6 +105,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             );
 
         setState(() {
+          _isSubmitting = false;
           submitClicked = false;
         });
 
@@ -106,6 +114,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         }
       } on AuthException catch (e) {
         setState(() {
+          _isSubmitting = false;
           submitClicked = false;
         });
         if (mounted) {
@@ -113,6 +122,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         }
       } catch (e) {
         setState(() {
+          _isSubmitting = false;
           submitClicked = false;
         });
         throw Exception(e.toString());
@@ -124,9 +134,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final userState = ref.watch(authControllerProvider);
-    final isLoading = userState.isLoading;
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.deepPurple,
@@ -148,7 +155,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 label: 'Email Address and Passcode',
                 hintText: 'Enter your email',
                 keyboardType: TextInputType.emailAddress,
-                isReadOnly: isLoading,
+                isReadOnly: _isSubmitting,
                 // Disable input when loading
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -183,7 +190,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                     backgroundColor: Colors.deepPurple,
                   ),
-                  onPressed: (isLoading)
+                  onPressed: (_isSubmitting)
                       ? null
                       : () {
                           if (_formKey.currentState!.validate()) {
@@ -218,7 +225,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 controller: _usernameController,
                 label: 'Username',
                 hintText: 'Enter your username',
-                isReadOnly: isLoading,
+                isReadOnly: _isSubmitting,
               ),
               const Gap(20.0),
               SizedBox(
@@ -237,7 +244,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     side:
                         const BorderSide(color: Colors.deepPurple, width: 1.7),
                   ),
-                  onPressed: (isLoading)
+                  onPressed: (_isSubmitting)
                       ? null
                       : () {
                           setState(() {

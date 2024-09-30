@@ -17,6 +17,7 @@ class _SnapSyncListViewState extends ConsumerState<SnapSyncListView> {
     final snapsState = ref.watch(snapControllerProvider);
 
     return snapsState.when(
+      skipLoadingOnRefresh: false,
       data: (snaps) {
         return snaps.isEmpty
             ? const Center(
