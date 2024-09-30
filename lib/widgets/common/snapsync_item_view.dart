@@ -24,7 +24,7 @@ class _SnapSyncItemViewState extends ConsumerState<SnapSyncItemView> {
     final user = ref.watch(authControllerProvider).user;
     final storageUrl = ref.watch(snapRepositoryProvider).storageUrl;
     final imageUrl =
-        '$storageUrl/object/public/memories/${widget.snap.profile.id}/${widget.snap.imageId}';
+        '$storageUrl/object/public/memories/${widget.snap.profile.id}/${widget.snap.imageId}?t=${DateTime.now().millisecondsSinceEpoch}';
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -126,6 +126,7 @@ class _SnapSyncItemViewState extends ConsumerState<SnapSyncItemView> {
                   });
                 },
                 child: ClipRRect(
+                  clipBehavior: Clip.hardEdge,
                   borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(12.0),
                     bottomRight: Radius.circular(12.0),
@@ -139,13 +140,18 @@ class _SnapSyncItemViewState extends ConsumerState<SnapSyncItemView> {
                         child: Shimmer.fromColors(
                           baseColor: Colors.grey.shade300,
                           highlightColor: Colors.grey.shade100,
-                          child: Container(color: Colors.white),
+                          child: Container(
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                       // Actual Image
                       Image.network(
                         imageUrl,
                         fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const SizedBox.shrink();
+                        },
                         loadingBuilder: (context, child, loadingProgress) {
                           if (loadingProgress == null) {
                             return child;
