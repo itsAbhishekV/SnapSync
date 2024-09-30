@@ -20,6 +20,7 @@ class SnapController extends StateNotifier<AsyncValue<List<SnapModel>>> {
   SnapController({
     required this.snapRepository,
   }) : super(const AsyncValue.loading()) {
+    getSnaps();
     initSnapChannel();
   }
 

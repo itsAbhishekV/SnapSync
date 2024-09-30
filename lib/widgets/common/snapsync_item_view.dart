@@ -21,7 +21,7 @@ class _SnapSyncItemViewState extends ConsumerState<SnapSyncItemView> {
 
   @override
   Widget build(BuildContext context) {
-    final user = ref.watch(authControllerProvider).user;
+    final user = ref.watch(authControllerProvider);
     final storageUrl = ref.watch(snapRepositoryProvider).storageUrl;
     final imageUrl =
         '$storageUrl/object/public/memories/${widget.snap.profile.id}/${widget.snap.imageId}?t=${DateTime.now().millisecondsSinceEpoch}';

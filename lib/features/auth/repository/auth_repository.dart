@@ -22,6 +22,7 @@ final class AuthRepository {
           .signUp(email: email, password: password, data: {
         'username': username,
       });
+
       return res;
     } on AuthException catch (e) {
       throw AuthException(e.message);
@@ -39,6 +40,7 @@ final class AuthRepository {
         email: email,
         password: passcode,
       );
+
       return res;
     } on AuthException catch (e) {
       throw AuthException(e.message);

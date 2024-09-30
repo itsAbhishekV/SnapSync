@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:snapsync/core/exports.dart';
 import 'package:snapsync/features/exports.dart';
 import 'package:snapsync/widgets/exports.dart';
+// import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   static const routeName = '/';
@@ -22,8 +23,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final user = ref.watch(authControllerProvider).user;
-
+    final user = ref.watch(authControllerProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text(
