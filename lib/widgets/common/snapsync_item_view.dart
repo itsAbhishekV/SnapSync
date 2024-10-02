@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:snapsync/core/exports.dart';
 import 'package:snapsync/features/exports.dart';
 import 'package:snapsync/models/exports.dart';
-import 'package:snapsync/widgets/common/snapsync_item_form.dart';
+import 'package:snapsync/widgets/exports.dart';
 
 class SnapSyncItemView extends ConsumerStatefulWidget {
   const SnapSyncItemView({super.key, required this.snap});
@@ -76,7 +75,6 @@ class _SnapSyncItemViewState extends ConsumerState<SnapSyncItemView> {
                       horizontal: 12.0, vertical: 8.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    mainAxisSize: MainAxisSize.max,
                     children: [
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,20 +98,7 @@ class _SnapSyncItemViewState extends ConsumerState<SnapSyncItemView> {
                           ),
                         ],
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            isLiked = !isLiked;
-                          });
-                        },
-                        child: Icon(
-                          isLiked
-                              ? FontAwesomeIcons.solidHeart
-                              : FontAwesomeIcons.heart,
-                          color: Colors.redAccent,
-                          size: 22.0,
-                        ),
-                      ),
+                      SnapSyncLike(snap: widget.snap),
                     ],
                   ),
                 ),
