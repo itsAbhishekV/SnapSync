@@ -15,31 +15,23 @@ class SnapSyncLike extends ConsumerStatefulWidget {
 }
 
 class _SnapSyncLikeState extends ConsumerState<SnapSyncLike> {
-  bool isLiked = false;
-
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authControllerProvider);
-    final likesCount = ref.watch(likesProvider(widget.snap.id));
-    final likes = likesCount.asData?.value;
+    final likeInfo = ref.watch(likesProvider(widget.snap));
+    final info = likeInfo.asData?.value;
+    final likes = info?.count ?? 0;
 
     return GestureDetector(
       onTap: () {
-        if (user == null || likesCount.isLoading) {
+        if (user == null || likeInfo.isLoading) {
           return;
         } else {
-          if (isLiked) {
-            setState(() {
-              isLiked = false;
-            });
-            ref
-                .read(snapControllerProvider.notifier)
-                .removeLike(widget.snap.id);
+          final backend = ref.read(snapControllerProvider.notifier);
+          if (info?.isLiked == true) {
+            backend.removeLike(widget.snap.id);
           } else {
-            setState(() {
-              isLiked = true;
-            });
-            ref.read(snapControllerProvider.notifier).likeSnap(widget.snap.id);
+            backend.likeSnap(widget.snap.id);
           }
         }
       },
@@ -49,7 +41,9 @@ class _SnapSyncLikeState extends ConsumerState<SnapSyncLike> {
         child: Row(
           children: [
             Icon(
-              isLiked ? FontAwesomeIcons.solidHeart : FontAwesomeIcons.heart,
+              info?.isLiked == true
+                  ? FontAwesomeIcons.solidHeart
+                  : FontAwesomeIcons.heart,
               color: Colors.redAccent,
               size: 22.0,
             ),

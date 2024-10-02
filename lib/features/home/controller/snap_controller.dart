@@ -2,11 +2,22 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:snapsync/features/exports.dart';
-import 'package:snapsync/models/snap_model.dart';
+import 'package:snapsync/models/exports.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-final likesProvider = StreamProvider.family<int, int>((ref, snapId) {
-  return ref.watch(snapControllerProvider.notifier).getLikes(snapId);
+final likesProvider = StreamProvider.family<LikesModel, SnapModel>((ref, snap) {
+  final user = ref.watch(authControllerProvider);
+  final snapRepository = ref.watch(snapRepositoryProvider);
+
+  return snapRepository.likes.map((likes) {
+    return LikesModel(
+      count: likes.where((like) => like['memory_id'] == snap.id).length,
+      isLiked: likes.any(
+        (like) =>
+            like['memory_id'] == snap.id && like['profile_id'] == user?.id,
+      ),
+    );
+  });
 });
 
 final snapControllerProvider =
@@ -47,12 +58,6 @@ class SnapController extends StateNotifier<AsyncValue<List<SnapModel>>> {
           },
         )
         .subscribe();
-  }
-
-  Stream<int> getLikes(int snapId) {
-    return snapRepository.likes.map((likes) {
-      return likes.where((like) => like['memory_id'] == snapId).length;
-    });
   }
 
   Future<void> likeSnap(int snapId) async {
