@@ -19,6 +19,9 @@ class SnapRepository {
     return _supabaseClient.channel('public:memories');
   }
 
+  Stream<List<Map<String, dynamic>>> get likes =>
+      _supabaseClient.from('likes').stream(primaryKey: ['id']);
+
   Future<List<SnapModel>> getSnaps() async {
     try {
       final response = await _supabaseClient
@@ -99,6 +102,41 @@ class SnapRepository {
           .remove(['$profileId/$imageId']);
     } catch (e) {
       throw Exception('Failed to delete snap $profileId $imageId');
+    }
+  }
+
+  Future<void> likeSnap(int snapId) async {
+    final profileId = _supabaseClient.auth.currentSession?.user.id;
+
+    if (profileId == null) {
+      throw Exception('Failed to like snap $profileId');
+    }
+
+    try {
+      await _supabaseClient.from('likes').insert({
+        'memory_id': snapId,
+        'profile_id': profileId,
+      });
+    } catch (e) {
+      throw Exception('Failed to like snap $profileId $snapId');
+    }
+  }
+
+  Future<void> removeLike(int snapId) async {
+    final profileId = _supabaseClient.auth.currentSession?.user.id;
+
+    if (profileId == null) {
+      throw Exception('Failed to like snap $profileId');
+    }
+
+    try {
+      await _supabaseClient
+          .from('likes')
+          .delete()
+          .eq('memory_id', snapId)
+          .eq('profile_id', profileId);
+    } catch (e) {
+      throw Exception('Failed to like snap $profileId $snapId');
     }
   }
 }
