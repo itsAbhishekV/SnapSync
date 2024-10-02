@@ -35,9 +35,11 @@ class _SnapSyncLikeState extends ConsumerState<SnapSyncLike> {
           final backend = ref.read(snapControllerProvider.notifier);
           if (info?.isLiked == true) {
             backend.removeLike(widget.snap.id);
+            showSnackBar(context, 'Unliked Snap');
             return;
           } else {
             backend.likeSnap(widget.snap.id);
+            showSnackBar(context, 'Liked Snap');
           }
           return;
         }
