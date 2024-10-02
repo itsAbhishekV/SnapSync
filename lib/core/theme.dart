@@ -17,6 +17,9 @@ const appBarTheme = AppBarTheme(
     color: Colors.black,
     fontWeight: FontWeight.w600,
   ),
+  iconTheme: IconThemeData(
+    color: Colors.white,
+  ),
   backgroundColor: Colors.white,
   centerTitle: true,
 );
