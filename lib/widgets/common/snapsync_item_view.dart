@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:gap/gap.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:snapsync/core/exports.dart';
 import 'package:snapsync/features/exports.dart';
@@ -76,7 +75,6 @@ class _SnapSyncItemViewState extends ConsumerState<SnapSyncItemView> {
                       horizontal: 12.0, vertical: 8.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    mainAxisSize: MainAxisSize.max,
                     children: [
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,7 +98,6 @@ class _SnapSyncItemViewState extends ConsumerState<SnapSyncItemView> {
                           ),
                         ],
                       ),
-                      const Gap(2.0),
                       SnapSyncLike(snap: widget.snap),
                     ],
                   ),

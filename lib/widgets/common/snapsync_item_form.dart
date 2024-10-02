@@ -140,7 +140,7 @@ class _SnapSyncItemFormState extends ConsumerState<SnapSyncItemForm> {
               controller: _titleController,
               isReadOnly: _isSubmitting,
               label: 'Title',
-              maxLength: 15,
+              maxLength: 12,
               hintText: 'Add image title',
               validator: (value) {
                 if (value == null || value.isEmpty) {

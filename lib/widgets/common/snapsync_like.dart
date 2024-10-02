@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gap/gap.dart';
+import 'package:snapsync/core/exports.dart';
 import 'package:snapsync/features/exports.dart';
 import 'package:snapsync/models/exports.dart';
 
@@ -25,6 +26,9 @@ class _SnapSyncLikeState extends ConsumerState<SnapSyncLike> {
     return GestureDetector(
       onTap: () {
         if (user == null || likeInfo.isLoading) {
+          if (user == null) {
+            showSnackBar(context, 'Please login to like this snap');
+          }
           return;
         } else {
           final backend = ref.read(snapControllerProvider.notifier);
@@ -37,8 +41,9 @@ class _SnapSyncLikeState extends ConsumerState<SnapSyncLike> {
       },
       child: SizedBox(
         height: 22.0,
-        width: likes == 0 ? 22.0 : 36.0,
+        width: 36.0,
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Icon(
               info?.isLiked == true
@@ -47,19 +52,17 @@ class _SnapSyncLikeState extends ConsumerState<SnapSyncLike> {
               color: Colors.redAccent,
               size: 22.0,
             ),
-            if (likes != 0) ...[
-              const Gap(6.0),
-              Flexible(
-                child: Text(
-                  '$likes',
-                  style: const TextStyle(
-                    fontSize: 14.0,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
+            const Gap(6.0),
+            Flexible(
+              child: Text(
+                '$likes',
+                style: const TextStyle(
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
                 ),
               ),
-            ],
+            ),
           ],
         ),
       ),
