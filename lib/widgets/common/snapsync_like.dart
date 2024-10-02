@@ -24,6 +24,7 @@ class _SnapSyncLikeState extends ConsumerState<SnapSyncLike> {
     final likes = info?.count ?? 0;
 
     return GestureDetector(
+      onDoubleTap: () {},
       onTap: () {
         if (user == null || likeInfo.isLoading) {
           if (user == null) {
@@ -34,9 +35,11 @@ class _SnapSyncLikeState extends ConsumerState<SnapSyncLike> {
           final backend = ref.read(snapControllerProvider.notifier);
           if (info?.isLiked == true) {
             backend.removeLike(widget.snap.id);
+            return;
           } else {
             backend.likeSnap(widget.snap.id);
           }
+          return;
         }
       },
       child: SizedBox(
